@@ -1,0 +1,202 @@
+{
+  "name": "Video Transcription and Translation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "video-upload",
+        "options": {
+          "allow": [
+            "video/*"
+          ]
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "ffmpeg -i \"={{$json[\"body\"][\"files\"][0][\"path\"]}}\" -vn -acodec pcm_s16le -ar 16000 -ac 1 \"={{$json[\"body\"][\"files\"][0][\"path\"]}}.wav\"",
+        "options": {}
+      },
+      "name": "Extract Audio",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:9000/asr",
+        "options": {
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "audio_file",
+                "value": "={{$json[\"body\"][\"files\"][0][\"path\"]}}.wav"
+              },
+              {
+                "name": "model",
+                "value": "medium"
+              },
+              {
+                "name": "language",
+                "value": "auto"
+              },
+              {
+                "name": "word_timestamps",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Whisper API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:5000/translate",
+        "options": {
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "text",
+                "value": "={{$json[\"segments\"][0][\"text\"]}}"
+              },
+              {
+                "name": "source_lang",
+                "value": "auto"
+              },
+              {
+                "name": "target_lang",
+                "value": "fr"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Translation API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "original_text",
+              "value": "={{$json[\"segments\"][0][\"text\"]}}"
+            },
+            {
+              "name": "translated_text",
+              "value": "={{$json[\"translatedText\"]}}"
+            },
+            {
+              "name": "segments",
+              "value": "={{$json[\"segments\"]}}"
+            },
+            {
+              "name": "language",
+              "value": "={{$json[\"language\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "={{$json[\"body\"][\"files\"][0][\"name\"]}}_result.json",
+        "options": {}
+      },
+      "name": "Write File",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Audio": {
+      "main": [
+        [
+          {
+            "node": "Whisper API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Whisper API": {
+      "main": [
+        [
+          {
+            "node": "Translation API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translation API": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Write File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+} 

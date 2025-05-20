@@ -45,36 +45,52 @@ if [ ! -f "$CONFIG_PATH" ]; then
     # Création du fichier de configuration par défaut
     cat > "$CONFIG_PATH" << EOL
 whisper:
-  model_name: "base"
-  beam_size: 5
-  best_of: 5
-  temperature: 0.0
-  fp16: true
-  task: "transcribe"
+  model: "tiny"
+  language: "auto"
+  translate: true
+  target_language: "fr"
+  device: "cpu"
+  compute_type: "int8"
+
+translation:
+  model: "facebook/mbart-large-50-many-to-many-mmt"
+  max_length: 512
+  device: "cpu"
 
 output:
-  base_dir: "$OUTPUT_DIR"
-  temp_dir: "$OUTPUT_DIR/temp"
+  directory: "$OUTPUT_DIR"
+  temp_directory: "$OUTPUT_DIR/temp"
+  format: "json"
 EOL
     print_message "Fichier de configuration créé : $CONFIG_PATH"
 fi
 
-# Activation de l'environnement virtuel si présent
-if [ -d "venv" ]; then
-    print_message "Activation de l'environnement virtuel..."
-    source venv/bin/activate
+# Vérification de l'environnement Conda
+if ! command -v conda &> /dev/null; then
+    print_error "Conda n'est pas installé. Veuillez installer Miniforge d'abord."
+    exit 1
 fi
+
+# Activation de l'environnement Conda
+print_message "Activation de l'environnement Conda..."
+source ~/miniforge3/bin/activate video-to-text
+
+# Vérification des dépendances
+print_message "Vérification des dépendances..."
+python -c "import sentencepiece; import whisper; import tqdm; print('OK')" || {
+    print_error "Des dépendances sont manquantes. Installation..."
+    pip install -r requirements.txt
+}
 
 # Exécution du script Python
 print_message "Traitement de la vidéo : $VIDEO_PATH"
-export PYTHONPATH=src
-python3 -m process_local_video --video "$VIDEO_PATH" --config "$CONFIG_PATH" --output-dir "$OUTPUT_DIR"
+python src/process_local_video.py "$VIDEO_PATH" --config "$CONFIG_PATH" --output "$OUTPUT_DIR"
 
 # Vérification du résultat
 if [ $? -eq 0 ]; then
     print_message "Traitement terminé avec succès !"
     print_message "Les résultats sont disponibles dans : $OUTPUT_DIR"
 else
-    print_error "Une erreur s'est produite lors du traitement"
+    print_error "Une erreur s'est produite lors du traitement."
     exit 1
 fi 
