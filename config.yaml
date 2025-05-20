@@ -1,0 +1,20 @@
+s3:
+  aws_access_key_id: "VOTRE_ACCESS_KEY"
+  aws_secret_access_key: "VOTRE_SECRET_KEY"
+  region_name: "eu-west-3"
+  bucket_name: "votre-bucket"
+
+whisper:
+  model: "base"
+  language: "auto"
+  translate: true
+  target_language: "fr"
+
+translation:
+  model: "facebook/mbart-large-50-many-to-many-mmt"
+  max_length: 512
+
+output:
+  directory: "./output"
+  temp_directory: "./output/temp"
+  format: "json" 
