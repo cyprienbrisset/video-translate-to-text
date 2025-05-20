@@ -5,16 +5,37 @@ s3:
   bucket_name: "votre-bucket"
 
 whisper:
-  model: "base"
+  model: "medium"
   language: "auto"
   translate: true
   target_language: "fr"
+  device: "cpu"
+  compute_type: "int8"
 
 translation:
-  model: "facebook/mbart-large-50-many-to-many-mmt"
-  max_length: 512
+  model: "nllb-200-distilled-600M"
+  source_lang: "fra_Latn"
+  target_lang: "eng_Latn"
+
+tts:
+  engine: "piper"
+  voice: "fr_FR-upmc-medium"
+  model_path: "models/piper/fr_FR-upmc-medium.onnx"
+  config_path: "models/piper/fr_FR-upmc-medium.onnx.json"
+  output_format: "wav"
+  sample_rate: 22050
 
 output:
   directory: "./output"
   temp_directory: "./output/temp"
-  format: "json" 
+  format: "json"
+
+# Configuration du lipsync
+lipsync:
+  wav2lip_path: "Wav2Lip"
+  face_det_batch_size: 8
+  wav2lip_batch_size: 64
+  resize_factor: 2
+  pads: [0, 40, 0, 0]
+  no_smooth: true
+  box: [50, 314, 266, 490] 

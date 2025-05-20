@@ -11,6 +11,8 @@
 - ⚡ **Performance** : Optimisé pour Apple Silicon (M1/M2)
 - 🔄 **Traitement Parallèle** : Support du traitement de plusieurs vidéos
 - 🧹 **Nettoyage Automatique** : Gestion des fichiers temporaires
+- 🎯 **Synchronisation Précise** : Maintien de la synchronisation audio-vidéo avec préservation des segments non vocaux
+- 🎵 **Gestion Intelligente** : Conservation automatique de la musique et des effets sonores
 
 ## 🛠️ Prérequis
 
@@ -89,6 +91,7 @@ Le résultat est sauvegardé dans un fichier JSON contenant :
 - ⏱️ Les segments avec timestamps
 - 🌍 La langue détectée
 - 📅 La date de traitement
+- 🎵 Les segments non vocaux (musique, applaudissements, etc.)
 
 Exemple de sortie JSON :
 ```json
@@ -98,9 +101,21 @@ Exemple de sortie JSON :
   "segments": [
     {
       "start": 0.0,
-      "end": 2.5,
+      "end": 12.0,
+      "text": "[Music]",
+      "type": "non_vocal"
+    },
+    {
+      "start": 12.0,
+      "end": 16.0,
+      "text": "[Applause]",
+      "type": "non_vocal"
+    },
+    {
+      "start": 16.0,
+      "end": 20.0,
       "text": "Hello, this is a test video.",
-      "confidence": 0.98
+      "type": "vocal"
     }
   ],
   "language": "en",
@@ -173,4 +188,23 @@ Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
 - [OpenAI Whisper](https://github.com/openai/whisper) pour le modèle de transcription
 - [Hugging Face](https://huggingface.co/) pour les modèles de traduction
-- [FFmpeg](https://ffmpeg.org/) pour le traitement audio 
+- [FFmpeg](https://ffmpeg.org/) pour le traitement audio
+
+### Traitement Audio
+
+Le système gère intelligemment différents types de segments audio :
+
+1. **Segments Vocaux** :
+   - Transcription et traduction
+   - Synchronisation précise avec l'audio original
+   - Remplacement par l'audio TTS traduit
+
+2. **Segments Non Vocaux** :
+   - Détection automatique (musique, applaudissements, etc.)
+   - Conservation de l'audio original
+   - Maintien de la synchronisation
+
+3. **Synchronisation** :
+   - Préservation des timestamps originaux
+   - Mélange intelligent de l'audio TTS et de l'audio original
+   - Gestion des transitions entre segments 

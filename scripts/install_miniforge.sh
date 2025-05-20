@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Téléchargement et installation de Miniforge pour Mac ARM
-curl -LO https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-chmod +x Miniforge3-MacOSX-arm64.sh
-./Miniforge3-MacOSX-arm64.sh
+# Téléchargement et installation de Miniforge pour Mac Intel
+curl -LO https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-x86_64.sh
+chmod +x Miniforge3-MacOSX-x86_64.sh
+./Miniforge3-MacOSX-x86_64.sh
 
 # Activation de Miniforge
 source ~/miniforge3/bin/activate
@@ -15,11 +15,12 @@ conda activate video-to-text
 # Installation des dépendances via conda
 conda install -c conda-forge ffmpeg sentencepiece protobuf numpy pyyaml accelerate -y
 
-# Installation des dépendances via pip
-pip install torch transformers boto3 python-dotenv ffmpeg-python
+# Installation des dépendances via pip avec support CPU
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install transformers boto3 python-dotenv ffmpeg-python tqdm
 pip install git+https://github.com/openai/whisper.git
 
 # Vérification de l'installation
-python -c "import sentencepiece; import whisper; print('OK')"
+python -c "import sentencepiece; import whisper; import tqdm; print('OK')"
 
 echo "Installation terminée. Pour activer l'environnement, exécutez : conda activate video-to-text" 
