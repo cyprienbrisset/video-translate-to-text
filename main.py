@@ -115,7 +115,7 @@ def sync_audio_with_original(original_audio_path, new_audio_path, timestamps, ou
     concat_file = os.path.join(os.path.dirname(output_path), 'concat.txt')
     with open(concat_file, 'w') as f:
         for start, segment_path in segments:
-            f.write(f"file '{segment_path}'\n")
+            f.write(f"file '{os.path.abspath(segment_path)}'\n")
     
     # Concaténer tous les segments
     subprocess.run([
@@ -387,7 +387,7 @@ def main():
             concat_file = temp_dir / 'concat.txt'
             with open(concat_file, 'w') as f:
                 for _, segment_path in segments:
-                    f.write(f"file '{segment_path}'\n")
+                    f.write(f"file '{os.path.abspath(segment_path)}'\n")
             
             # Concaténer tous les segments
             logger.info("Concaténation des segments...")

@@ -63,7 +63,8 @@ class TTSProcessor:
                 '--model', self.model_path,
                 '--config', self.config_path,
                 '--output-file', temp_audio_path,
-                '--speaker', str(self.speaker_id)
+                '--speaker', str(self.speaker_id),
+                '--espeak_data', '/opt/homebrew/share/espeak-ng-data'
             ]
             
             # Exécuter la commande en passant le texte via stdin
